@@ -1,0 +1,16 @@
+Shri Ram Parivar — third-party material
+
+Font
+- Uncial Antiqua by Astigmatic (Brian J. Bonislawsky), SIL Open Font License 1.1.
+  Source: https://github.com/google/fonts/tree/main/ofl/uncialantiqua (licence in fonts/OFL-UncialAntiqua.txt)
+
+Code
+- lib.js and the glint/glow passes in film.js: the Gilded Illumination drawing kit from the Lemo-Opuscar style library
+  (github.com/lemomo-ai/lemo-opuscar), MIT licence.
+
+Sound
+- All music and sound effects are synthesized in mix.py (Karplus-Strong harp, additive bells and organ, noise-based foley),
+  using the library's sfx.py helpers. No samples, no recordings.
+
+Pictures
+- Everything on screen is drawn in code (film.js). No photographs, stock footage or generated images.

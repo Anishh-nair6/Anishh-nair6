@@ -1,0 +1,1 @@
+{"dur":6,"ev":[{"t":0,"type":"flame"},{"t":0.25,"type":"arch"},{"t":0.667,"type":"paint","i":0},{"t":1.333,"type":"paint","i":1},{"t":2,"type":"paint","i":2},{"t":2.667,"type":"silence"},{"t":2.55,"type":"plaque"},{"t":2.8,"type":"write"},{"t":2.95,"type":"spark"},{"t":3.333,"type":"touch"},{"t":4.667,"type":"rake"},{"t":5.333,"type":"chord"}]}
