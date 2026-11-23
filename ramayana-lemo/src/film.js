@@ -71,6 +71,14 @@ function subtitles(g, t) {
 
 // ---------------------------------------------------------------- the border: gold outer, vermilion band with pearls, gold cord
 let BORDER = null;
+// the channel tag on the frame (top right), a small vellum label lettered in ink, present for the whole film
+const TAG = '@dharmamanjari_';
+function channelTag(g) {
+  const size = 25, w = tw(TAG, 'cinzel', size, 700) + 46, h = 42, cx = W - 70 - w / 2, cy = 36;
+  const p = P2(q => q.roundRect(cx - w / 2, cy - h / 2, w, h, 8)); vellum(g, p);
+  for (const sx of [-1, 1]) { const d = P2(q => q.arc(cx + sx * (w / 2 - 11), cy, 3.2, 0, TAU)); paint(g, d, VERM, VERM_D, 1, 1); }
+  inkText(g, TAG, cx, cy + 9, size, { fam: 'cinzel', wt: 700, col: '#4a2c16', id: 'tag' });
+}
 function makeBorder() { return cacheLayer(g => {
   const outer = P2(q => { q.rect(0, 0, W, H); q.rect(W - 22, 22, -(W - 44), H - 44); }), band = P2(q => { q.rect(22, 22, W - 44, H - 44); q.rect(W - 50, 50, -(W - 100), H - 100); });
   leaf(g, outer, [0, 0, W, H], { rule: 'evenodd', line: false, rim: false });
@@ -99,7 +107,7 @@ function render(t) {
   FRg.setTransform(1, 0, 0, 1, 0, 0); setZoom(1);
   if (tr) cloudBank(FRg, front);
   subtitles(FRg, t);
-  drawCached(FRg, BORDER);
+  drawCached(FRg, BORDER); channelTag(FRg);
   FRg.save(); FRg.globalCompositeOperation = 'multiply'; FRg.globalAlpha = .12; FRg.fillStyle = FRg.createPattern(GRAINC, 'repeat'); FRg.fillRect(0, 0, W, H); FRg.restore();
   MK = null;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.drawImage(FR, 0, 0);
@@ -153,7 +161,7 @@ window.thumb = () => {
   medallion(FRg, 960, 780, 170, 1, q => lotusFlower(q, 960, 850, 135));
   valmiki(FRg, 430, 1000, 1.0, 1, 2, { ask: .8, look: .3 }); narada(FRg, 1520, 990, .9, -1, 1.2, { pluck: 0, talk: .2 });
   diya(FRg, 960, 1000, 1.2, 3.3, 1, 1);
-  drawCached(FRg, BORDER); MK = null;
+  drawCached(FRg, BORDER); channelTag(FRg); MK = null;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(FR, 0, 0);
   const lights = [diyaLight(960, 1000, 1.2, 3.3, .8, 700), { type: 'r', x: 440, y: 700, r: 360, a: .6 }, { type: 'r', x: 1510, y: 640, r: 360, a: .6 }, { type: 'b', x: 760, y: 300, nx: .9, ny: .44, w: 260, a: .8 }, { type: 'r', x: 960, y: 780, r: 320, a: .7 }];
   glintPass(new DOMMatrix(), lights, .16); glowPass(.28);

@@ -42,7 +42,7 @@ if (arg('stills')) {
   for (const s of arg('stills').split(',')) { const t = +s, { img, tx } = await grab(page, t, 'image/png');
     const f = path.join(dir, `t${t.toFixed(2).padStart(7, '0')}.png`); fs.writeFileSync(f, Buffer.from(img.split(',')[1], 'base64'));
     // overflow check: every visible text box must stay inside the frame's inner rule (70 px) — captions and lower-thirds included
-    const bad = tx.filter(b => b.a > .05 && (b.x0 < 70 || b.x1 > 1850 || b.y0 < 70 || b.y1 > 1010));
+    const bad = tx.filter(b => b.a > .05 && (b.id !== 'tag' && (b.x0 < 70 || b.x1 > 1850 || b.y0 < 70 || b.y1 > 1010)));
     report.push({ t, file: path.relative(ROOT, f), texts: tx.length, overflow: bad }); console.log(f, bad.length ? 'OVERFLOW ' + JSON.stringify(bad) : 'ok'); }
   fs.writeFileSync(path.join(dir, 'report.json'), JSON.stringify(report, null, 1));
   await browser.close(); server.close(); process.exit(0);
@@ -60,7 +60,7 @@ async function renderChunk(page, [a, b]) {
     '-c:v', 'libx264', '-preset', preset, '-crf', crf, '-pix_fmt', 'yuv420p', '-r', String(fps), '-g', String(fps * 2), file], { stdio: ['pipe', 'inherit', 'inherit'] });
   for (let f = a; f < b; f++) {
     const { img, tx } = await grab(page, (f + .5) / fps - .5 / fps);
-    if (f % 15 === 0) for (const x of tx) if (x.a > .05 && (x.x0 < 70 || x.x1 > 1850 || x.y0 < 70 || x.y1 > 1010)) overflow.push({ t: f / fps, ...x });
+    if (f % 15 === 0) for (const x of tx) if (x.a > .05 && x.id !== 'tag' && (x.x0 < 70 || x.x1 > 1850 || x.y0 < 70 || x.y1 > 1010)) overflow.push({ t: f / fps, ...x });
     if (!ff.stdin.write(Buffer.from(img.split(',')[1], 'base64'))) await new Promise(r => ff.stdin.once('drain', r));
     done++; if (done % 150 === 0) { const el = (Date.now() - t0) / 1000; console.log(`${done}/${f1 - f0} frames  ${(done / el).toFixed(1)} fps  eta ${((f1 - f0 - done) / (done / el) / 60).toFixed(1)} min`); }
   }
