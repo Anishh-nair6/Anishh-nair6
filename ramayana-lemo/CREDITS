@@ -1,0 +1,24 @@
+Valmiki Ramayana · Bala Kanda · Sarga 1 · Part 1 (Dharma Manjari) — third-party material
+
+Narration
+- voiceover.mp3: supplied by the channel (ElevenLabs voice of the channel owner).
+
+Code and style
+- src/lib.js (gold leaf in squares, glint mask, pigment helpers), the glint/glow/flash passes in src/paint.js,
+  audio/sfx.py and audio/pluck.py: from Lemo-Opuscar by Lemomo (LemoLab), MIT licence
+  (https://github.com/lemomo-ai/lemo-opuscar, licence notice in audio/LICENSE-lemo-opuscar).
+  Style followed: Gilded Illumination (styles/gilded-illumination/STYLE.md, CC BY-NC 4.0 docs; read, not copied).
+- Everything else (scenes, score, mix, timeline tools): written for this film.
+
+Fonts (SIL Open Font License 1.1, licence texts in fonts/)
+- Tiro Devanagari Sanskrit (Tiro Typeworks), Noto Serif Devanagari (Google), Cinzel (Natanael Gama), Uncial Antiqua (Astigmatic).
+
+Music and sound
+- Original score in audio/score.py, entirely synthesized (Karplus-Strong strings, additive bells, procedural drum and whoosh).
+  No samples, no recordings.
+
+Pictures
+- Everything on screen is drawn in code. No photographs, stock footage or generated images.
+
+Speech recognition (timing only): faster-whisper with OpenAI Whisper large-v3 weights (MIT).
+Sanskrit text: Valmiki Ramayana, public domain.
