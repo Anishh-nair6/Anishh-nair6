@@ -30,3 +30,15 @@ Setup (the question in lamplight) → the ashram and the asking (shlokas 1.1.1�
 
 ## Score
 Bhupali on D (Sa Re Ga Pa Dha) over a tanpura drone; a veena-like plucked string with meend and gamak; harp for chords; temple bells and hand bells when gold lights; a frame drum for Ayodhya. The band stops at the turn (tanpura only), a low bell, then komal Ga and Ni. The end card resolves the opening phrase on Sa. Music ≈ 20 dB under the voice while he speaks, rising in pauses; −14 LUFS master.
+
+## Revision 2 (channel notes: alignment, human figures, meaning pictures)
+- Alignment: Whisper put the first word after each pause ~0.4–0.6 s early; lines now start at the measured speech onset
+  (2 of 67 lines remain earlier, both mid-sentence with no pause). Shloka writing and subtitle writing follow the voice word by word.
+- Figures: Maharshi Valmiki (seated, white beard, jata, tripundra, saffron, rudraksha, gold halo) and Devarshi Narada (on a cloud,
+  mahati veena over the shoulder, shikha, urdhva tilak, rose uttariya, gold halo), painted in profile as in Indian miniatures.
+  Ashram: Narada descends on his cloud on "आते हैं देवर्षि नारद", Valmiki greets him with folded hands, then asks on "प्रश्न".
+- Meaning pictures: 1.1.1 Valmiki asks (a thread of gold from him to Narada on "परिपप्रच्छ"); 1.1.2–1.1.4 the qualities as
+  roundels (lotus, bow, dharma wheel, folded hands, sun, diya, kalash, deer, folios, mountain, moon, meditator, open palm, storm),
+  each appearing on its Sanskrit word and lighting on its Hindi word; 1.1.5 Valmiki's request with folded hands; 1.1.7 Narada
+  answers, sixteen stars dim as "दुर्लभ" and one rises on "मनुष्य"; 1.1.8 Narada names Rama's qualities.
+- The shared motion tempo was lowered (push 0.003/s, drift 2 px/s) so long shloka shots keep their plaque inside the frame.

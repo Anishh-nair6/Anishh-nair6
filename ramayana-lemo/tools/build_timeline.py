@@ -94,7 +94,7 @@ def align(a, b):
     return pairs[::-1], int(D[n, m])
 
 def silences(path):
-    r = subprocess.run(['ffmpeg', '-hide_banner', '-i', path, '-af', 'silencedetect=noise=-38dB:d=0.25', '-f', 'null', '-'], capture_output=True, text=True).stderr
+    r = subprocess.run(['ffmpeg', '-hide_banner', '-i', path, '-af', 'silencedetect=noise=-38dB:d=0.2', '-f', 'null', '-'], capture_output=True, text=True).stderr
     ends = [float(x) for x in re.findall(r'silence_end: ([\d.]+)', r)]
     starts = [float(x) for x in re.findall(r'silence_start: ([\d.]+)', r)]
     return starts, ends
@@ -141,12 +141,16 @@ def main():
     # snap starts to silence ends; ends to silence starts
     s_st, s_en = silences(AUDIO)
     allines = [l for s in secs for l in s['lines']]
+    # Whisper puts the first word after a pause too early (it starts where the pause starts), so a line that follows a
+    # pause starts where that pause ENDS: the real speech onset. Ends go to the next pause start. A line with no pause
+    # around it (a split inside a sentence) keeps its word time.
     for k, l in enumerate(allines):
-        c = [e for e in s_en if l['start'] - .7 <= e <= l['start'] + .35]
-        if c: l['start'] = max(c) if max(c) <= l['start'] + .35 else l['start']
-        c = [b for b in s_st if l['end'] - .3 <= b <= l['end'] + .8]
-        if c: l['end'] = min(c)
-        l['start'] = max(0.0, l['start'] - .08); l['end'] = min(dur, l['end'] + .12)
+        hi = 1.6 if k == 0 else .9
+        c = [e for e in s_en if l['start'] - .3 <= e <= l['start'] + hi]
+        if c: l['start'] = min(c, key=lambda e: abs(e - (l['start'] + .3)))
+        c = [b for b in s_st if l['end'] - .4 <= b <= l['end'] + .7]
+        if c: l['end'] = min(c, key=lambda b: abs(b - l['end']))
+        l['start'] = max(0.0, l['start'] - .03); l['end'] = min(dur, l['end'] + .1)
     # chanted shlokas that Whisper did not transcribe: spread the block of lines over the voiced gap between the
     # neighbouring matched lines, cutting at the silences nearest to the length-proportional split points
     sil = list(zip(s_st, s_en)); k = 0
@@ -210,7 +214,13 @@ def main():
                 a0, a1 = off, off + len(ch); off = a1 + 1
                 inside = [x for ix, x in ctimes if a0 <= ix < a1]
                 st = inside[0] if inside else l['start']; en = inside[-1] if inside else l['end']
-                caps.append({'text': ch, 'start': st, 'end': en, 'scene': s['type'], 'kind': l['kind']})
+                # word timings inside the chunk: [character offset in the chunk, time the word is spoken]
+                wt, o = [], 0
+                for wd in ch.split(' '):
+                    li = a0 + o; tt = next((x for ix, x in ctimes if ix >= li), None)
+                    if tt is not None: wt.append([o, round(tt, 3)])
+                    o += len(wd) + 1
+                caps.append({'text': ch, 'start': st, 'end': en, 'scene': s['type'], 'kind': l['kind'], 'wt': wt})
             caps[-len(chunks)]['start'] = l['start']; caps[-1]['end'] = l['end']
     for a, b in zip(caps, caps[1:]):
         a['end'] = min(max(a['end'] + .25, a['start'] + 1.0), b['start'])

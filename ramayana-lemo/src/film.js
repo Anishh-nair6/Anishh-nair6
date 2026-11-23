@@ -11,7 +11,8 @@ function sceneAt(t) { const s = TL.scenes; let i = 0; while (i + 1 < s.length &&
 function camOf(i, t) {
   const sc = TL.scenes[i], S = SCN[sc.type], [fx, fy] = S.focus, dir = i % 2 ? 1 : -1;
   const z = S.zoomDir === -1 ? Math.exp(PACE.ZOOM * Math.max(0, sc.end - t)) : Math.exp(PACE.ZOOM * (t - sc.start + PACE.WIPE));
-  return { x: fx + dir * PACE.DRIFT * (t - sc.start), y: fy, z, r: 0 };
+  const [ax, ay] = S.anchor || S.focus;   // the push zooms about the anchor; the framing at zoom 1 is set by focus
+  return { x: ax + (fx - ax) / z + dir * PACE.DRIFT * (t - sc.start), y: ay + (fy - ay) / z, z, r: 0 };
 }
 const toScr = (M, x, y) => [M.a * x + M.c * y + M.e, M.b * x + M.d * y + M.f];
 function lightsToScreen(M, Ls) { const z = Math.hypot(M.a, M.b);
@@ -50,6 +51,11 @@ function prepSubs() {
   SUB.w = clamp(wmax + 130, 900, 1520);
   RUNS = []; for (const c of CAPS) { const r = RUNS[RUNS.length - 1]; if (r && c.start - r.end < 1.5) { r.end = c.end; r.caps.push(c); } else RUNS.push({ start: c.start, end: c.end, caps: [c] }); }
 }
+function capChars(c, t) {   // characters of caption c spoken by time t (interpolated between word starts)
+  const W = (c.wt && c.wt.length ? c.wt : [[0, c.start]]).map((w, k) => k ? w : [w[0], Math.max(w[1], c.start)]), n = c.text.length; if (t < W[0][1]) return 0;
+  for (let k = 0; k < W.length; k++) { const a = W[k], b = W[k + 1] || [n, Math.max(c.end, a[1] + .3)]; if (t < b[1]) return lerp(a[0], b[0], clamp((t - a[1]) / Math.max(.05, b[1] - a[1]))); }
+  return n;
+}
 function subtitles(g, t) {
   const run = RUNS.find(r => t >= r.start - PACE.SCROLL && t < r.end + .3 + PACE.SCROLL); if (!run) return;
   const open = Math.min(clamp((t - run.start + PACE.SCROLL) / PACE.SCROLL), clamp((run.end + .3 + PACE.SCROLL - t) / PACE.SCROLL));
@@ -57,9 +63,10 @@ function subtitles(g, t) {
   const i = run.caps.findIndex((c, k) => t >= c.start && (k + 1 === run.caps.length || t < run.caps[k + 1].start)); if (i < 0) return;
   const c = run.caps[i], next = run.caps[i + 1], out = next ? 1 - clamp((t - next.start + .25) / .25) : 1 - clamp((t - c.end - .3) / .3);
   const lh = SUB.size * 1.42, y0 = SUB.cy - (c.lines.length - 1) * lh / 2 + SUB.size * .36;
-  let off = 0; const tot = c.lines.reduce((a, l) => a + tw(l, 'noto', SUB.size), 0);
-  c.lines.forEach((l, k) => { const w = tw(l, 'noto', SUB.size), u = clamp(((t - c.start) * PACE.PEN - off) / w); off += w; inkText(g, l, SUB.cx, y0 + k * lh, SUB.size, { wipe: u, alpha: out, wt: 500, id: 'sub' }); });
-  void tot;
+  // the pen follows the voice: characters are written up to the word being spoken now (+ a short lead)
+  const n = c.text.length, said = capChars(c, t + .15); let off = 0;
+  c.lines.forEach((l, k) => { const u = clamp((said - off) / l.length); off += l.length + 1; inkText(g, l, SUB.cx, y0 + k * lh, SUB.size, { wipe: u, alpha: out, wt: 500, id: 'sub' }); });
+  void n;
 }
 
 // ---------------------------------------------------------------- the border: gold outer, vermilion band with pearls, gold cord
@@ -123,6 +130,7 @@ window.events = () => {
   const ev = [], E = (t, type, o = {}) => ev.push({ t: +t.toFixed(3), type, ...o });
   TL.scenes.forEach((sc, i) => { if (i) E(sc.start - PACE.WIPE / 2, 'wipe', { to: sc.type });
     if (sc.type === 'coldopen') E(sc.start + .3, 'light');
+    if (sc.type === 'ashram') { const nl = sc.lines.find(l => /नारद/.test(l.text)); if (nl) E(nl.start + .2, 'narada'); }
     if (sc.type === 'title') E(sc.lines[sc.lines.length - 1].start, 'title');
     if (sc.type === 'lotus') SCN.lotus.marks(sc).forEach((m, k) => E(m, 'petal', { k }));
     if (sc.type === 'rama') E(SCN.rama.touchT(sc), 'touch');
@@ -142,11 +150,12 @@ window.thumb = () => {
   plaque(FRg, 110, 110, 1700, 330, 1);
   goldText(FRg, 'रामायण · बालकाण्ड · सर्ग १', 960, 322, fitSize(['रामायण · बालकाण्ड · सर्ग १'], 'tiro', 150, 1520));
   goldText(FRg, 'VALMIKI RAMAYANA · PART 1', 960, 530, 46, { fam: 'cinzel' });
-  medallion(FRg, 960, 780, 190, 1, q => lotusFlower(q, 960, 860, 150));
-  diya(FRg, 330, 860, 2.4, 3.3, 1, 1); diya(FRg, 1590, 860, 2.4, 1.7, 1, 2);
+  medallion(FRg, 960, 780, 170, 1, q => lotusFlower(q, 960, 850, 135));
+  valmiki(FRg, 430, 1000, 1.0, 1, 2, { ask: .8, look: .3 }); narada(FRg, 1520, 990, .9, -1, 1.2, { pluck: 0, talk: .2 });
+  diya(FRg, 960, 1000, 1.2, 3.3, 1, 1);
   drawCached(FRg, BORDER); MK = null;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(FR, 0, 0);
-  const lights = [diyaLight(330, 860, 2.4, 3.3, .8, 900), diyaLight(1590, 860, 2.4, 1.7, .8, 900), { type: 'b', x: 760, y: 300, nx: .9, ny: .44, w: 260, a: .8 }, { type: 'r', x: 960, y: 780, r: 320, a: .7 }];
+  const lights = [diyaLight(960, 1000, 1.2, 3.3, .8, 700), { type: 'r', x: 440, y: 700, r: 360, a: .6 }, { type: 'r', x: 1510, y: 640, r: 360, a: .6 }, { type: 'b', x: 760, y: 300, nx: .9, ny: .44, w: 260, a: .8 }, { type: 'r', x: 960, y: 780, r: 320, a: .7 }];
   glintPass(new DOMMatrix(), lights, .16); glowPass(.5); flashes(new DOMMatrix(), lights);
-  ctx.globalCompositeOperation = 'lighter'; for (const [x, y, r, a] of [flamePool(330, 860, 2.4, .35), flamePool(1590, 860, 2.4, .35)]) pool(x, y, r, a); ctx.globalCompositeOperation = 'source-over';
+  ctx.globalCompositeOperation = 'lighter'; for (const [x, y, r, a] of [flamePool(960, 1000, 1.2, .35)]) pool(x, y, r, a); ctx.globalCompositeOperation = 'source-over';
 };

@@ -31,7 +31,7 @@ function halo(g, cx, cy, R) {
   leaf(g, disc, [cx - R, cy - R, R * 2, R * 2], { lw: 2, rimW: 6 });
   g.save(); g.clip(disc); g.strokeStyle = 'rgba(100,54,6,.5)'; g.lineWidth = 2;
   for (let a = 0; a < 28; a++) { const an = a / 28 * TAU; g.beginPath(); g.moveTo(cx + Math.cos(an) * R * .5, cy + Math.sin(an) * R * .5); g.lineTo(cx + Math.cos(an) * R * .93, cy + Math.sin(an) * R * .93); g.stroke(); }
-  g.restore(); pearls(g, cx, cy, R + 5.5, 30, 2.3, .9); gpush(cx, cy - R * .55, R * 1.3, 1.1);
+  g.restore(); pearls(g, cx, cy, R + 5.5, 30, 2.3, .9); gpush(cx, cy - R * 1.02, R * .7, 1.1);
 }
 // the sage, seen from behind (faceless): saffron shawl, hair knot, gold halo, seated on a mat
 function sage(g, sx, sy, s = 1) {
@@ -91,13 +91,13 @@ SCN.coldopen = {
     drawCached(g, sc.L);
     const t0 = sc.start, lit = ss(clamp((t - t0 - .3) / .6));
     diya(g, 960, 880, 1.5, t, lit, 0);
-    const open = clamp((t - t0 - 1.0) / PACE.BUILD); scroll(g, 960, 470, 1580, 330, open);
+    const open = clamp((t - t0 - .1) / PACE.BUILD); scroll(g, 960, 470, 1580, 330, open);
     if (open < 1) return;
     const pg = pages(sc.lines);
     pg.forEach((ls, pi) => {
       const pEnd = pi + 1 < pg.length ? pg[pi + 1][0].start : sc.end + 9, out = 1 - clamp((t - pEnd + .3) / .3);
       if (out <= 0) return; const big = ls.length > 1, size = fitSize(ls.map(l => l.text), 'tiro', big ? 62 : 54, 1380), lh = size * 1.45, y0 = 470 - (ls.length - 1) * lh / 2 + size * .33;
-      ls.forEach((l, i) => { const t1 = Math.max(l.start, t0 + 2.0), w = tw(l.text, 'tiro', size); inkText(g, l.text, 960, y0 + i * lh, size, { fam: 'tiro', wipe: penWipe(t, t1, w), alpha: out, col: big ? '#6e1c10' : '#4a2c16', id: 'cold' }); });
+      ls.forEach((l, i) => { inkText(g, l.text, 960, y0 + i * lh, size, { fam: 'tiro', wipe: spokenFrac(l, t + .12), alpha: out, col: big ? '#6e1c10' : '#4a2c16', id: 'cold' }); });
     });
   },
   lights(t, sc) { const lit = ss(clamp((t - sc.start - .3) / .6)); return [diyaLight(960, 880, 1.5, t, .62 * lit, 640)]; },
@@ -193,14 +193,15 @@ SCN.ashram = {
         const c = P2(q => q.arc(x, y, r, 0, TAU)); paint(g, c, VERD, VERD_D, 16, 2.6);
         for (let k = 0; k < 8; k++) triad(g, x + Math.cos(k * 2.4) * r * .6, y + Math.sin(k * 2.4) * r * .6, 2.2, .75);
         for (let k = 0; k < 4; k++) { const fx = x + Math.cos(k * 1.7 + 1) * r * .45, fy = y + Math.sin(k * 1.7 + 1) * r * .45, f = P2(q => q.arc(fx, fy, 9, 0, TAU)); leaf(g, f, [fx - 9, fy - 9, 18, 18], { lw: 1.4, rimW: 2 }); gpush(fx, fy, 22, .8); } }
+      g.save(); g.translate(330, 0);   // the hut stands further right, behind Narada's landing place
       // hut: ochre walls, thatch, a gold-ground doorway
       const wall = P2(q => q.rect(1220, 650, 260, 150)); paint(g, wall, OCHRE, OCHRE_D, 10, 2.4);
       const roof = P2(q => { q.moveTo(1190, 660); q.lineTo(1350, 540); q.lineTo(1510, 660); q.closePath(); }); paint(g, roof, WOOD, WOOD_D, 10, 2.4);
       for (let i = 1; i < 9; i++) ink(g, P2(q => { q.moveTo(1350, 548); q.lineTo(1190 + i * 320 / 9, 660); }), 1.2);
       const door = P2(q => { q.moveTo(1322, 800); q.lineTo(1322, 712); q.arc(1350, 712, 28, Math.PI, 0); q.lineTo(1378, 800); q.closePath(); }); leaf(g, door, [1322, 684, 56, 116], { lw: 2, rimW: 4 });
       // the fire altar
-      const alt = P2(q => q.rect(1030, 780, 90, 34)); paint(g, alt, ROSE, ROSE_D, 6, 2.2); pearlLine(g, [[1036, 796], [1114, 796]], 14, 2, .8);
-      sage(g, 860, 800, 1);
+      g.restore();
+      const alt = P2(q => q.rect(905, 790, 90, 34)); paint(g, alt, ROSE, ROSE_D, 6, 2.2); pearlLine(g, [[911, 806], [989, 806]], 14, 2, .8);
     }, [-160, -100, W + 320, H + 200]);
   },
   draw(g, t, sc) {
@@ -208,42 +209,53 @@ SCN.ashram = {
     g.save(); g.beginPath(); g.rect(-200, 800, W + 400, 80); g.clip();            // river: white-lead ripples drifting at one speed
     for (let i = 0; i < 26; i++) { const y = 812 + (i % 5) * 14, x = ((i * 173 + t * 18) % (W + 300)) - 150; hiLine(g, [[x, y], [x + 40, y - 3], [x + 80, y]], 1.8, .6); }
     g.restore();
-    const [wob, hg] = flameWob(t, 2), fx = 1075, fy = 780;                          // the fire
+    const [wob, hg] = flameWob(t, 2), fx = 950, fy = 790;                          // the fire
     for (const [w, h, c] of [[30, 64, VERM], [20, 44, OCHRE_L], [9, 22, WHITE]]) { const p = P2(q => { q.moveTo(fx - w, fy); q.bezierCurveTo(fx - w, fy - h * .5, fx + wob, fy - h * .7, fx + wob * 2, fy - h - hg * 2); q.bezierCurveTo(fx + w * .6, fy - h * .6, fx + w, fy - h * .3, fx + w, fy); q.closePath(); }); g.fillStyle = c; g.fill(p); if (c === VERM) { ink(g, p, 1.6); maskErase(g, p); } }
-    const nl = findLine(sc, /नारद/);
-    if (nl) { const k = build(t, nl.start); if (k > 0) { medallion(g, 1580, 300, 150 * k, 1, q => veenaDrawing(q, 1580, 300, .42)); } }
+    const P = this.people(t, sc);
+    valmiki(g, 640, 836, .95, 1, t, P.v);
+    if (P.nk > 0) narada(g, P.nx, P.ny, .86, -1, t, P.n);
+    if (P.nk > 0) notes(g, P.nx + 70, P.ny - 300, t, P.nk);
   },
-  lights(t, sc) { const L = [{ type: 'r', x: 1075, y: 740, r: 560, a: .55 * (.9 + .1 * Math.sin(t * 6.1)) }]; const nl = findLine(sc, /नारद/);
-    if (nl) L.push({ type: 'r', x: 1580, y: 300, r: 360, a: .75 * build(t, nl.start + .6) }); return L; },
-  pools(t) { return [[1075, 740, 90, .3]]; },
+  // Narada descends from the sky on a cloud (one smooth arc), Valmiki greets him with folded hands, then asks
+  people(t, sc) {
+    const nl = findLine(sc, /नारद/), ul = findLine(sc, /उठते/), t0 = nl ? nl.start + .2 : 1e9, k = ease(clamp((t - t0) / 3.2));
+    const nx = lerp(1640, 1280, k), ny = lerp(330, 830, k) - Math.sin(k * Math.PI) * 40, land = t0 + 3.2;
+    const askT = ul ? (wordTime(ul, 'प्रश्न') ?? ul.start + 2) : 1e9;
+    const nam = clamp((t - land + .4) / 1.2) * (1 - clamp((t - askT) / 1.2));
+    return { nk: clamp((t - t0 + .3) / .6), nx, ny, n: { pluck: 1 - clamp((t - land) / 1.5) * .6, nod: clamp((t - askT - .5) / 1), blink: blinkAt(t, 2) },
+      v: { namaste: nam, ask: clamp((t - askT) / 1.2), look: lerp(0, .45, clamp((t - t0) / 2)), blink: blinkAt(t) } };
+  },
+  lights(t, sc) { const L = [{ type: 'r', x: 950, y: 750, r: 560, a: .55 * (.9 + .1 * Math.sin(t * 6.1)) }], P = this.people(t, sc);
+    L.push({ type: 'r', x: 650, y: 560, r: 260, a: .35 }); if (P.nk > 0) L.push({ type: 'r', x: P.nx, y: P.ny - 330, r: 320, a: .7 * P.nk });
+    return L; },
+  pools(t) { return [[950, 750, 90, .3]]; },
 };
 function ultraP(g) { if (!g.__paint) { g.__paint = g.createPattern(PAINTC, 'repeat'); g.__paint.setTransform(new DOMMatrix().scale(1.1)); } return g.__paint; }
 
 // 4. a shloka: lettered in leaf on a gilded plaque, written at chanting pace; the pen's light lights each word as it is laid
 const devaNum = s => String(s).replace(/[0-9]/g, d => '०१२३४५६७८९'[+d]);
-const PL = { x: 130, y: 196, w: 1660, h: 500 };
+const PL = { x: 210, y: 90, w: 1500, h: 290 };
 function shlokaLayout(sc) {
   if (sc._lay) return sc._lay; const sl = lines(sc, 'shloka');
-  const size = fitSize(sl.map(l => l.text), 'tiro', sl.length > 2 ? 64 : 74, PL.w - 220), lh = size * 1.5;
-  const top = PL.y + 150 + (PL.h - 190 - (sl.length - 1) * lh) / 2 + size * .3;
+  const size = fitSize(sl.map(l => l.text), 'tiro', sl.length > 2 ? 52 : 62, PL.w - 200), lh = size * 1.45;
+  const top = PL.y + 118 + (PL.h - 150 - (sl.length - 1) * lh) / 2 + size * .3;
   return (sc._lay = { sl, size, lh, top });
 }
-const PEN_CHANT = 400;   // shloka lines are written at one steady pace, close to the chanting
+// the pen follows the chant: the share of the line already sung (from the aligner's character times) is what is written
+const penFront = (l, t) => spokenFrac(l, t + .12);
 SCN.shloka = {
-  focus: [960, 470],
-  build(sc) { const motif = sc.arg.split(/\s+/)[1];
-    sc.L = nightLayer(61 + (sc.idx || 0), [[100, 120, 1720, 620]], { stars: 18, h1: [110, 180], h2: [70, 120], clouds: [[220, 120, 220, 64], [1720, 110, 220, 64]] });
-    sc.motif = motif; },
+  focus: [960, 540], anchor: [960, 330],
+  build(sc) { sc.L = nightLayer(61 + (sc.idx || 0), [[120, 40, 1680, 420]], { stars: 22, skyH: 520, h1: [110, 190], h2: [70, 130], base1: 1120, base2: 1160, clouds: [[260, 470, 240, 66], [1680, 450, 240, 66]] }); },
   draw(g, t, sc) {
     drawCached(g, sc.L); const L = shlokaLayout(sc), ref = sc.arg.split(/\s+/)[0];
     plaque(g, PL.x, PL.y, PL.w, PL.h, build(t, sc.start));
-    medallion(g, 960, 186, 84, build(t, sc.start + .3), (q, r) => {
-      if (sc.motif === 'veena') veenaDrawing(q, 960, 186, .2); else if (sc.motif === 'bow') bowDrawing(q, 960, 186, .17); else if (sc.motif === 'sage') { q.save(); q.translate(960, 236); q.scale(.3, .3); q.translate(-860, -800); sage(q, 860, 800, 1); q.restore(); } else lotusFlower(q, 960, 222, 70); });
-    if (ref) { const R = '॥ बालकाण्ड · सर्ग १ · श्लोक ' + devaNum(ref.split('.').pop()) + ' ॥'; goldText(g, R, 960, 330, 34, { wipe: penWipe(t, sc.start + PACE.BUILD, tw(R, 'tiro', 34)), id: 'ref' }); }
-    L.sl.forEach((l, i) => { const w = tw(l.text, 'tiro', L.size); goldText(g, l.text, 960, L.top + i * L.lh, L.size, { wipe: clamp((t - l.start) / (w / PEN_CHANT)), keys: true, id: 'shloka' }); });
+    if (ref) { const R = '॥ बालकाण्ड · सर्ग १ · श्लोक ' + devaNum(ref.split('.').pop()) + ' ॥'; goldText(g, R, 960, PL.y + 84, 30, { wipe: penWipe(t, sc.start + PACE.BUILD, tw(R, 'tiro', 30)), id: 'ref' }); }
+    L.sl.forEach((l, i) => goldText(g, l.text, 960, L.top + i * L.lh, L.size, { wipe: penFront(l, t), keys: true, id: 'shloka' }));
+    const v = VIG_OF[ref]; if (v) VIG[v[0]].draw(g, t, sc, v[1]);
   },
-  lights(t, sc) { const L = shlokaLayout(sc), out = [{ type: 'r', x: 960, y: 186, r: 260, a: .45 * build(t, sc.start + .6) }];
-    L.sl.forEach((l, i) => { const w = tw(l.text, 'tiro', L.size), u = (t - l.start) / (w / PEN_CHANT); if (u > 0 && u < 1.15) out.push({ type: 'r', x: 960 - w / 2 + w * Math.min(u, 1), y: L.top + i * L.lh - L.size * .35, r: 300, a: .9 * (u < 1 ? 1 : 1 - (u - 1) / .15) }); });
+  lights(t, sc) { const L = shlokaLayout(sc), ref = sc.arg.split(/\s+/)[0], out = [];
+    L.sl.forEach((l, i) => { const w = tw(l.text, 'tiro', L.size), u = penFront(l, t), fade = clamp((l.end + .6 - t) / .6); if (u > 0 && fade > 0) out.push({ type: 'r', x: 960 - w / 2 + w * u, y: L.top + i * L.lh - L.size * .35, r: 280, a: .9 * fade }); });
+    const v = VIG_OF[ref]; if (v) out.push(...VIG[v[0]].lights(t, sc, v[1]));
     return out; },
 };
 
@@ -264,6 +276,7 @@ SCN.lotus = {
       const p = P2(q => { q.moveTo(0, -40); q.bezierCurveTo(-P.w, -len * .35, -P.w * .7, -len * .8, 0, -len); q.bezierCurveTo(P.w * .7, -len * .8, P.w, -len * .35, 0, -40); });
       leaf(g, p, [-P.w, -len, P.w * 2, len], { lw: 2.2, rimW: 6 }); g.strokeStyle = 'rgba(100,54,6,.55)'; g.lineWidth = 1.6; g.beginPath(); g.moveTo(0, -60); g.lineTo(0, -len * .9); g.stroke();
       g.restore(); }
+    valmiki(g, 300, 860, .72, 1, t, { ask: .3 + .3 * Math.sin(t * .5) ** 2, look: .55, blink: blinkAt(t) });
     const pb = build(t, sc.start + 2.2); if (pb > 0) { const pod = P2(q => q.arc(cx, cy, 64 * eo(pb), 0, TAU)); paint(g, pod, VERM, VERM_D, 10, 2.6);
       for (let k = 0; k < 9; k++) { const a = k / 9 * TAU, s = P2(q => q.arc(cx + Math.cos(a) * 36 * pb, cy + Math.sin(a) * 36 * pb, 7, 0, TAU)); leaf(g, s, [cx - 50, cy - 50, 100, 100], { lw: 1.2, rimW: 1 }); }
       pearls(g, cx, cy, 52 * pb, 18, 2.2, .9); }
@@ -359,7 +372,7 @@ SCN.close = {
   build(sc) { sc.L = nightLayer(101, [[100, 80, 1720, 760]], { stars: 22, h1: [90, 150], h2: [50, 90] }); },
   draw(g, t, sc) {
     drawCached(g, sc.L); const t0 = sc.start;
-    const M4 = [[330, 250, q => { q.save(); q.translate(330, 300); q.scale(.28, .28); q.translate(-860, -800); sage(q, 860, 800, 1); q.restore(); }], [1590, 250, q => veenaDrawing(q, 1590, 250, .24)],
+    const M4 = [[330, 250, q => valmiki(q, 318, 400, .62, 1, t, { blink: blinkAt(t), look: .2 })], [1590, 250, q => narada(q, 1600, 450, .55, -1, t, { pluck: .6, blink: blinkAt(t, 2) })],
       [330, 650, q => lotusFlower(q, 330, 690, 90)], [1590, 650, q => bowDrawing(q, 1590, 650, .2)]];
     M4.forEach(([x, y, fn], i) => medallion(g, x, y, 130, build(t, t0 + i * .3), q => fn(q)));
     plaque(g, 560, 340, 800, 220, build(t, t0 + 1.2));

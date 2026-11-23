@@ -74,6 +74,12 @@ if tt:
     put('melody', harp(SA - 12, None, .6), tt + .1, .8); put('melody', harp(SA - 5, None, .5), tt + .2, .7); put('melody', harp(SA, None, .5), tt + .3, .7)
     phrase(tt + 1.2, [(5, 1, MEEND), (4, .5), (3, .5), (2, 1), (0, 3, GAMAK)], beat=.6, v=.55)
 
+na = first('narada')
+if na:                                                       # Narada descends: a harp glissando, a bell, his veena phrase
+    for k in range(10): put('melody', harp(deg(10 - k), None, .45), na + k * .09, .6, .4 - k * .06)
+    put('bells', hand_bell(1568, .5), na + 1.0, .45, .3)
+    phrase(na + 1.6, [(7, 1, MEEND), (9, .5), (7, .5), (5, 1), (4, 2, GAMAK)], beat=.45, v=.55, gain=.85, pan=.3)
+
 for w in ev('wipe'):                                         # every cloud wipe: the same rising four notes and a soft whoosh
     to = w['to']; a = w['t']
     put('fx', X.lp(X.whoosh(1.6, .35), 2500), a, .55, 0)

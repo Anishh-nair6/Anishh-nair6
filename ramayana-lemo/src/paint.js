@@ -5,8 +5,8 @@
 
 // ---------------------------------------------------------------- one tempo for every motion in the film
 const PACE = {
-  ZOOM: .0055,    // camera push: log-zoom per second, the same in every shot
-  DRIFT: 5,       // camera drift: px per second, the same in every shot
+  ZOOM: .003,     // camera push: log-zoom per second, the same in every shot
+  DRIFT: 2,       // camera drift: px per second, the same in every shot
   PEN: 520,       // pen wipe for all writing: px per second
   BUILD: 1.0,     // paint and gold build-up: seconds for every element
   WIPE: 1.6,      // the cloud wipe between scenes: seconds, constant speed
