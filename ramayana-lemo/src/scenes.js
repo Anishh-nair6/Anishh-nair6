@@ -61,17 +61,18 @@ function veenaDrawing(g, cx, cy, s) {   // a rudra-veena style instrument in pig
   g.strokeStyle = 'rgba(251,246,234,.85)'; g.lineWidth = 1.2; for (let k = 0; k < 4; k++) { g.beginPath(); g.moveTo(-280, -8 + k * 5); g.lineTo(300, -8 + k * 4); g.stroke(); }
   g.restore(); gpush(cx, cy, 200 * s, 1);
 }
-function bowDrawing(g, cx, cy, s) {   // Kodanda: a recurve bow and an arrow, gold cord on pigment
+function bowDrawing(g, cx, cy, s) {   // Kodanda: a recurve bow with an arrow nocked; the arrow points the way the bow faces (up and right)
   g.save(); g.translate(cx, cy); g.rotate(-Math.PI / 4); g.scale(s, s);
-  const limb = P2(q => { q.moveTo(-40, -380); q.bezierCurveTo(-10, -330, -190, -200, -190, 0); q.bezierCurveTo(-190, 200, -10, 330, -40, 380); });
+  const limb = P2(q => { q.moveTo(40, -380); q.bezierCurveTo(10, -330, 190, -200, 190, 0); q.bezierCurveTo(190, 200, 10, 330, 40, 380); });
   g.lineCap = 'round'; g.strokeStyle = INK; g.lineWidth = 22 + 3 * LWK; g.stroke(limb); g.strokeStyle = WOOD; g.lineWidth = 22; g.stroke(limb);
-  hiLine(g, [[-168, -120], [-180, 0], [-168, 120]], 2.4, .55);
-  leafCord(g, P2(q => { q.moveTo(-190, -40); q.lineTo(-190, 40); }), 30, { ink: 2.4 });
-  for (const y of [-200, 200]) leafCord(g, P2(q => { q.moveTo(-150, y - 8); q.lineTo(-150, y + 8); }), 26, { ink: 2 });
-  g.strokeStyle = 'rgba(42,26,16,.9)'; g.lineWidth = 2.4; g.beginPath(); g.moveTo(-40, -378); g.lineTo(-40, 378); g.stroke();
-  leafCord(g, P2(q => { q.moveTo(-40, 0); q.lineTo(390, 0); }), 9, { ink: 2.4 });
-  const head = P2(q => { q.moveTo(440, 0); q.lineTo(380, -28); q.lineTo(394, 0); q.lineTo(380, 28); q.closePath(); }); leaf(g, head, [380, -28, 60, 56], { lw: 2, rimW: 3 });
-  for (const sd of [-1, 1]) { const f = P2(q => { q.moveTo(-20, 0); q.quadraticCurveTo(0, 34 * sd, 50, 38 * sd); q.lineTo(30, 0); q.closePath(); }); paint(g, f, VERM, VERM_D, 4, 2); }
+  hiLine(g, [[168, -120], [180, 0], [168, 120]], 2.4, .55);
+  for (const [lx, ly] of [[40, -380], [40, 380]]) { const tip = P2(q => { q.moveTo(lx, ly); q.quadraticCurveTo(lx + 30, ly + (ly < 0 ? -20 : 20), lx + 40, ly + (ly < 0 ? 8 : -8)); }); ink(g, tip, 5); }
+  leafCord(g, P2(q => { q.moveTo(190, -40); q.lineTo(190, 40); }), 30, { ink: 2.4 });
+  for (const y of [-200, 200]) leafCord(g, P2(q => { q.moveTo(150, y - 8); q.lineTo(150, y + 8); }), 26, { ink: 2 });
+  g.strokeStyle = 'rgba(42,26,16,.9)'; g.lineWidth = 2.4; g.beginPath(); g.moveTo(40, -378); g.lineTo(40, 378); g.stroke();
+  leafCord(g, P2(q => { q.moveTo(40, 0); q.lineTo(420, 0); }), 9, { ink: 2.4 });
+  const head = P2(q => { q.moveTo(470, 0); q.lineTo(410, -28); q.lineTo(424, 0); q.lineTo(410, 28); q.closePath(); }); leaf(g, head, [410, -28, 60, 56], { lw: 2, rimW: 3 });
+  for (const sd of [-1, 1]) { const f = P2(q => { q.moveTo(40, 0); q.quadraticCurveTo(60, 34 * sd, 110, 38 * sd); q.lineTo(90, 0); q.closePath(); }); paint(g, f, VERM, VERM_D, 4, 2); }
   g.restore(); gpush(cx, cy, 260 * s, 1);
 }
 function palmBundle(g, cx, cy) {   // a bundle of palm-leaf folios tied with cord
@@ -91,12 +92,12 @@ SCN.coldopen = {
     drawCached(g, sc.L);
     const t0 = sc.start, lit = ss(clamp((t - t0 - .3) / .6));
     diya(g, 960, 880, 1.5, t, lit, 0);
-    const open = clamp((t - t0 - .1) / PACE.BUILD); scroll(g, 960, 470, 1580, 330, open);
+    const open = clamp((t - t0 - .1) / PACE.BUILD); scroll(g, 960, 470, 1480, 330, open);
     if (open < 1) return;
     const pg = pages(sc.lines);
     pg.forEach((ls, pi) => {
       const pEnd = pi + 1 < pg.length ? pg[pi + 1][0].start : sc.end + 9, out = 1 - clamp((t - pEnd + .3) / .3);
-      if (out <= 0) return; const big = ls.length > 1, size = fitSize(ls.map(l => l.text), 'tiro', big ? 62 : 54, 1380), lh = size * 1.45, y0 = 470 - (ls.length - 1) * lh / 2 + size * .33;
+      if (out <= 0) return; const big = ls.length > 1, size = fitSize(ls.map(l => l.text), 'tiro', big ? 62 : 54, 1300), lh = size * 1.45, y0 = 470 - (ls.length - 1) * lh / 2 + size * .33;
       ls.forEach((l, i) => { inkText(g, l.text, 960, y0 + i * lh, size, { fam: 'tiro', wipe: spokenFrac(l, t + .12), alpha: out, col: big ? '#6e1c10' : '#4a2c16', id: 'cold' }); });
     });
   },
@@ -135,7 +136,7 @@ SCN.intro = {
     goldText(g, 'DHARMA MANJARI', 960, 790, 26, { fam: 'cinzel', wipe: penWipe(t, nameL.start + 1, 300), id: 'name-sub' });
     for (const x of [400, 1520]) diya(g, x, 790, 1.1, t, 1, x);
     const l0 = sc.lines[0], k = build(t, l0.start) * (1 - clamp((t - l0.start - 6.5) / PACE.SCROLL));      // the name of the narrator on a small scroll
-    if (k > 0) { scroll(g, 250, 680, 250, 76, k); if (k >= 1) inkText(g, 'अनीश', 250, 696, 40, { fam: 'tiro', id: 'anish' }); }
+    if (k > 0) { scroll(g, 250, 680, 250, 76, k); if (k >= 1) inkText(g, 'अनिश', 250, 696, 40, { fam: 'tiro', id: 'anish' }); }
   },
   lights(t, sc) { const nameL = findLine(sc, /धर्म मंजरी/) || sc.lines[0], w = tw('धर्म मंजरी', 'tiro', 84), u = penWipe(t, nameL.start, w);
     const L = [diyaLight(400, 790, 1.1, t, .55, 520), diyaLight(1520, 790, 1.1, t, .55, 520), { type: 'r', x: 960, y: 230, r: 420, a: .35 * build(t, sc.start + 1) }];
@@ -234,11 +235,12 @@ function ultraP(g) { if (!g.__paint) { g.__paint = g.createPattern(PAINTC, 'repe
 
 // 4. a shloka: lettered in leaf on a gilded plaque, written at chanting pace; the pen's light lights each word as it is laid
 const devaNum = s => String(s).replace(/[0-9]/g, d => '०१२३४५६७८९'[+d]);
-const PL = { x: 210, y: 90, w: 1500, h: 290 };
+const PL = { x: 210, y: 78, w: 1500, h: 336 };
 function shlokaLayout(sc) {
   if (sc._lay) return sc._lay; const sl = lines(sc, 'shloka');
-  const size = fitSize(sl.map(l => l.text), 'tiro', sl.length > 2 ? 52 : 62, PL.w - 200), lh = size * 1.45;
-  const top = PL.y + 118 + (PL.h - 150 - (sl.length - 1) * lh) / 2 + size * .3;
+  const size = fitSize(sl.map(l => l.text), 'tiro', sl.length > 2 ? 46 : 60, PL.w - 220), lh = size * 1.5;
+  // the field runs from PL.y+30 to PL.y+PL.h-30; the reference sits at the top; each line needs ~0.95 size above and ~0.45 below its baseline
+  const y0 = PL.y + 104, y1 = PL.y + PL.h - 44, block = (sl.length - 1) * lh + size * 1.4, top = y0 + (y1 - y0 - block) / 2 + size * .95;
   return (sc._lay = { sl, size, lh, top });
 }
 // the pen follows the chant: the share of the line already sung (from the aligner's character times) is what is written
@@ -249,7 +251,7 @@ SCN.shloka = {
   draw(g, t, sc) {
     drawCached(g, sc.L); const L = shlokaLayout(sc), ref = sc.arg.split(/\s+/)[0];
     plaque(g, PL.x, PL.y, PL.w, PL.h, build(t, sc.start));
-    if (ref) { const R = '॥ बालकाण्ड · सर्ग १ · श्लोक ' + devaNum(ref.split('.').pop()) + ' ॥'; goldText(g, R, 960, PL.y + 84, 30, { wipe: penWipe(t, sc.start + PACE.BUILD, tw(R, 'tiro', 30)), id: 'ref' }); }
+    if (ref) { const R = '॥ बालकाण्ड · सर्ग १ · श्लोक ' + devaNum(ref.split('.').pop()) + ' ॥'; goldText(g, R, 960, PL.y + 76, 30, { wipe: penWipe(t, sc.start + PACE.BUILD, tw(R, 'tiro', 30)), id: 'ref' }); }
     L.sl.forEach((l, i) => goldText(g, l.text, 960, L.top + i * L.lh, L.size, { wipe: penFront(l, t), keys: true, id: 'shloka' }));
     const v = VIG_OF[ref]; if (v) VIG[v[0]].draw(g, t, sc, v[1]);
   },

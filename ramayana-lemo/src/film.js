@@ -105,7 +105,7 @@ function render(t) {
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.drawImage(FR, 0, 0);
   const lightsScr = main.L.concat(other ? other.L : []), Mm = main.M, zi = 1 / Math.hypot(Mm.a, Mm.b), inv = Mm.inverse();
   const lightsW = lightsScr.map(L => { const p = new DOMPoint(L.x, L.y).matrixTransform(inv); return L.type === 'r' ? { ...L, x: p.x, y: p.y, r: L.r * zi } : L.type === 'o' ? { ...L, x: p.x, y: p.y, rad: L.rad * zi, w: L.w * zi } : { ...L, x: p.x, y: p.y, w: L.w * zi }; });
-  glintPass(Mm, lightsW, .13); glowPass(.5); flashes(new DOMMatrix(), lightsScr);
+  glintPass(Mm, lightsW, .13); glowPass(.28);
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'lighter';
   for (const [x, y, r, a] of main.pools.concat(other ? other.pools : [])) if (a > 0) pool(x, y, r, a);
   ctx.globalCompositeOperation = 'source-over';
@@ -156,6 +156,6 @@ window.thumb = () => {
   drawCached(FRg, BORDER); MK = null;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(FR, 0, 0);
   const lights = [diyaLight(960, 1000, 1.2, 3.3, .8, 700), { type: 'r', x: 440, y: 700, r: 360, a: .6 }, { type: 'r', x: 1510, y: 640, r: 360, a: .6 }, { type: 'b', x: 760, y: 300, nx: .9, ny: .44, w: 260, a: .8 }, { type: 'r', x: 960, y: 780, r: 320, a: .7 }];
-  glintPass(new DOMMatrix(), lights, .16); glowPass(.5); flashes(new DOMMatrix(), lights);
+  glintPass(new DOMMatrix(), lights, .16); glowPass(.28);
   ctx.globalCompositeOperation = 'lighter'; for (const [x, y, r, a] of [flamePool(960, 1000, 1.2, .35)]) pool(x, y, r, a); ctx.globalCompositeOperation = 'source-over';
 };

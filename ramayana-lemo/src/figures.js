@@ -110,7 +110,8 @@ function narada(g, x, y, s, face, t, pose = {}) {
   for (let i = 0; i < 12; i++) { const fx = -90 + i * 18, fr = P2(q => q.rect(fx, -13, 3, 5)); leaf(g, fr, [fx, -13, 3, 5], { lw: .6, rim: false }); }
   for (const [vx, r] of [[-160, 46], [170, 30]]) { const gd = P2(q => q.arc(vx, 30, r, 0, TAU)); paint(g, gd, OCHRE_D, WOOD_D, 8, 2.2);
     const band = P2(q => { q.arc(vx, 30, r * .7, 0, TAU); q.arc(vx, 30, r * .5, 0, TAU, true); }); leaf(g, band, [vx - r, 30 - r, 2 * r, 2 * r], { lw: 1.2, rimW: 1, rule: 'evenodd' }); }
-  const pk = P2(q => { q.moveTo(170, -10); q.bezierCurveTo(200, -24, 214, -52, 194, -66); q.bezierCurveTo(182, -72, 172, -60, 180, -50); q.lineTo(168, 10); q.closePath(); }); leaf(g, pk, [166, -72, 50, 82], { lw: 1.6, rimW: 2 });
+  const pk = P2(q => { q.moveTo(170, -10); q.bezierCurveTo(196, -20, 206, -42, 192, -54); q.bezierCurveTo(182, -60, 174, -52, 180, -44); q.lineTo(168, 10); q.closePath(); }); paint(g, pk, WOOD, WOOD_D, 3, 1.6);
+  leafCord(g, P2(q => { q.moveTo(170, -12); q.lineTo(172, 8); }), 4, { ink: 1.2 });
   const vib = pl * Math.sin(t * 40) * .8;
   g.strokeStyle = 'rgba(251,246,234,.9)'; g.lineWidth = 1; for (let k = 0; k < 4; k++) { g.beginPath(); g.moveTo(-150, -6 + k * 4); g.quadraticCurveTo(0, -6 + k * 4 + (k === 1 ? vib : 0), 170, -6 + k * 3); g.stroke(); }
   g.restore();
@@ -126,7 +127,17 @@ function narada(g, x, y, s, face, t, pose = {}) {
   // near arm: plucks (a small, steady rhythm) or lifts in blessing when he speaks
   const pr = Math.sin(t * 5.2) * .5 + .5, hdP = [16 + pr * 8 * pl, -158 - pr * 6 * pl], hdT = [56, -300];
   const hd = mixP(hdP, hdT, talk), el = mixP([44, -228], [44, -246], talk);
-  arm(g, [16, -318], el, hd, SKIN_N, SKIN_ND, 19); hand(g, hd[0], hd[1], 11, SKIN_N, SKIN_ND, -.3 - talk);
+  // blessing (ashirvad): the raised hand in abhaya mudra, palm outward, with a soft ring of gold rays behind it
+  if (talk > .05) { g.save(); g.globalAlpha *= ease((talk - .05) / .6); g.translate(hd[0] + 4, hd[1] - 14); g.rotate(t * .25);
+    const rays = P2(q => { for (let k = 0; k < 16; k++) { const a0 = k / 16 * TAU, a1 = a0 + TAU / 40; q.moveTo(Math.cos(a0) * 26, Math.sin(a0) * 26); q.lineTo(Math.cos(a0) * 46, Math.sin(a0) * 46); q.lineTo(Math.cos(a1) * 46, Math.sin(a1) * 46); q.lineTo(Math.cos(a1) * 26, Math.sin(a1) * 26); q.closePath(); } });
+    leaf(g, rays, [-46, -46, 92, 92], { lw: .8, rimW: 1 }); const ring = P2(q => { q.arc(0, 0, 24, 0, TAU); q.arc(0, 0, 20, 0, TAU, true); }); leaf(g, ring, [-24, -24, 48, 48], { lw: .8, rimW: 1, rule: 'evenodd' });
+    g.restore(); }
+  arm(g, [16, -318], el, hd, SKIN_N, SKIN_ND, 19);
+  if (talk > .5) { g.save(); g.translate(hd[0], hd[1]); const palm = P2(q => { q.moveTo(-11, 10); q.lineTo(-12, -10); q.quadraticCurveTo(-13, -22, -9, -24); q.lineTo(-7, -12); q.lineTo(-5, -30); q.quadraticCurveTo(-2, -33, 0, -30); q.lineTo(1, -13);
+      q.lineTo(3, -32); q.quadraticCurveTo(6, -34, 8, -31); q.lineTo(8, -13); q.lineTo(11, -27); q.quadraticCurveTo(14, -29, 15, -26); q.lineTo(14, -6); q.quadraticCurveTo(20, -12, 22, -8); q.quadraticCurveTo(18, 2, 12, 10); q.closePath(); });
+    paint(g, palm, SKIN_N, SKIN_ND, 3, 1.6); const dot = P2(q => q.arc(2, -4, 3, 0, TAU)); paint(g, dot, VERM, VERM_D, 1, .8); g.restore(); }
+  else hand(g, hd[0], hd[1], 11, SKIN_N, SKIN_ND, -.3 - talk);
+  if (pose.out) pose.out.palm = [x + face * s * hd[0], y + bob + s * (hd[1] - 14)];
   g.restore();
 }
 const blinkAt = (t, seed = 0) => { const p = ((t + seed * 1.7) % 4.3 + 4.3) % 4.3; return p < .14 ? Math.sin(p / .14 * Math.PI) : 0; };

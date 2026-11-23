@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------- one tempo for every motion in the film
 const PACE = {
   ZOOM: .003,     // camera push: log-zoom per second, the same in every shot
-  DRIFT: 2,       // camera drift: px per second, the same in every shot
+  DRIFT: 0,       // camera drift: px per second, the same in every shot
   PEN: 520,       // pen wipe for all writing: px per second
   BUILD: 1.0,     // paint and gold build-up: seconds for every element
   WIPE: 1.6,      // the cloud wipe between scenes: seconds, constant speed
@@ -81,10 +81,13 @@ function goldText(g, text, cx, by, size, o = {}) {
   if (wipe < 1) { g.beginPath(); g.rect(x0 - size, by - size * 1.6, (w + size * 2) * wipe, size * 2.6); g.clip(); }
   g.font = f; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
   g.fillStyle = 'rgba(8,6,30,.55)'; g.fillText(text, x0 + size * .03, by + size * .045);                  // raised gold: small cast shadow
-  goldPat(g); g.fillStyle = g.__gp; g.fillText(text, x0, by);
-  const gr = g.createLinearGradient(0, by - size, 0, by + size * .3); gr.addColorStop(0, 'rgba(255,240,180,.28)'); gr.addColorStop(.55, 'rgba(90,50,0,0)'); gr.addColorStop(1, 'rgba(70,38,0,.35)');
-  g.fillStyle = gr; g.fillText(text, x0, by);
-  g.lineWidth = Math.max(1.1, size * .018) * LWK; g.strokeStyle = 'rgba(42,26,16,.85)'; g.lineJoin = 'round'; g.strokeText(text, x0, by);
+  if (o.bright ?? size < 44) {   // small lettering: a bright burnished gold that reads at any light level
+    const gb = g.createLinearGradient(0, by - size, 0, by + size * .25); gb.addColorStop(0, '#fbe7a6'); gb.addColorStop(.5, '#e9c463'); gb.addColorStop(1, '#c08a2c'); g.fillStyle = gb; g.fillText(text, x0, by);
+  } else {
+    goldPat(g); g.fillStyle = g.__gp; g.fillText(text, x0, by);
+    const gr = g.createLinearGradient(0, by - size, 0, by + size * .3); gr.addColorStop(0, 'rgba(255,240,180,.28)'); gr.addColorStop(.55, 'rgba(90,50,0,0)'); gr.addColorStop(1, 'rgba(70,38,0,.35)');
+    g.fillStyle = gr; g.fillText(text, x0, by); }
+  if (!(o.bright ?? size < 44)) { g.lineWidth = Math.max(1.1, size * .018) * LWK; g.strokeStyle = 'rgba(42,26,16,.85)'; g.lineJoin = 'round'; g.strokeText(text, x0, by); }
   if (MK) { MK.g.save(); MK.g.setTransform(MK.pre.multiply(g.getTransform())); if (wipe < 1) { MK.g.beginPath(); MK.g.rect(x0 - size, by - size * 1.6, (w + size * 2) * wipe, size * 2.6); MK.g.clip(); }
     MK.g.font = f; MK.g.textAlign = 'left'; MK.g.fillStyle = MK.col || '#fff'; MK.g.fillText(text, x0, by); MK.g.restore(); }
   if (o.keys) { const words = text.split(' '); let pre = '';
